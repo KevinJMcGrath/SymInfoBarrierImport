@@ -40,29 +40,33 @@ def generate_user_data():
 
 
 def gen_random_parent_user(keypair_id: str, public_key: str):
-    return gen_random_user_attributes(keypair_id, public_key)
+    return gen_random_user_attributes(keypair_id=keypair_id, public_key=public_key)
 
 
 def gen_random_child_user(parent_user):
-    return gen_random_user_attributes(parent_user)
+    return gen_random_user_attributes(parent_user=parent_user)
 
 
-def gen_random_user_attributes(keypair_id: str = None, public_key: str = None, parent_user=None):
+def gen_random_user_attributes(keypair_id: str = None, public_key: str = None, parent_user: NewUserData = None):
     user = NewUserData()
     user.first_name = utility.get_random_string().title()
     user.last_name = utility.get_random_string(7, 14).title()
     user.username = f'scp_{user.first_name}_{user.last_name}_{utility.rand_number_n_digits(6)}'
 
     if parent_user:
-        user.domain = parent_user['domain']
-        user.parent_username = parent_user['username']
-        user.keypair_record_id = parent_user['keypair_id']
-        user.rsa_public_key = parent_user['pubkey']
+        user.domain = parent_user.domain
+        user.parent_username = parent_user.username
+        user.keypair_record_id = parent_user.keypair_record_id
+        user.rsa_public_key = parent_user.rsa_public_key
+        user.company_name = parent_user.company_name
     else:
         user.domain = utility.get_random_string(3, 8) + ".com"
         user.parent_username = None
         user.keypair_record_id = keypair_id
-        user.rsa_public_key = public_key
+        user.rsa_public_key = public_key.rstrip('\n')
+        # Right... the company name is hard coded into the POD config. UGH. That's the whole reason
+        # why we're doing this ludicrous exercise.
+        user.company_name = "Symphony Develop"
 
     user.email = f'{user.first_name}.{user.last_name}@{user.domain}'
 
@@ -83,7 +87,7 @@ def keypair_count_check(company_count, keypair_ids):
 
 def company_count_menu():
     while True:
-        count_input = input('How many "companies" do you want to create?')
+        count_input = input('How many "companies" do you want to create? >>> ')
         if count_input.isnumeric():
             count = int(count_input)
             if count <= 0:
@@ -98,7 +102,7 @@ def company_count_menu():
 
 def users_per_company_menu():
     while True:
-        count_input = input('How many users per company')
+        count_input = input('How many users per company? >>> ')
         if count_input.isnumeric():
             count = int(count_input)
             if count <= 0:

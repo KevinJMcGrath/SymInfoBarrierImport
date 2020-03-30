@@ -16,14 +16,17 @@ class User(APIBase):
     @timeit
     def create_service_user(self, first_name: str, last_name: str, email: str, username: str, company_name: str,
                             public_key: str):
+        # Service users do not get firstName or lastName. I don't know why they thought that was
+        # important enough to validate, but they did. Thanks guys.
         user = {
             "userAttributes": {
                 "accountType": "SYSTEM",
                 "emailAddress": email,
-                "firstName": first_name[:64],
-                "lastName": last_name[:64],
+                # "firstName": first_name[:64],
+                # "lastName": last_name[:64],
                 "displayName": f"{first_name[:64]} {last_name[:64]}",
                 "userName": username,
+                "companyName": company_name,
                 "currentKey": {"key": public_key}
             },
             "roles": ["INDIVIDUAL"]

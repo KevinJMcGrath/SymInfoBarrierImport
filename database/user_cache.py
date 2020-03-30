@@ -36,7 +36,9 @@ class UserCache(DBConn):
             yield DBUserSession(row)
 
     def insert_user_session(self, sym_id, session_token, km_token, rsa_id, bot_username, parent_id=None):
-        self.execute_query(self._insert_sql, sym_id, session_token, km_token, rsa_id, parent_id, bot_username)
+        sql = "INSERT INTO user_cache (user_id, session_token, km_token, rsa_id, parent_id, bot_username) VALUES"
+        sql += f"({sym_id}, {session_token}, {km_token}, {rsa_id}, {parent_id}, {bot_username})"
+        self.execute_query(sql)
 
     def update_user_session(self, sym_user_id, session_token, km_token):
         sql = f"UPDATE user_cache SET session_token = {session_token}, km_token = {km_token} WHERE id = {sym_user_id}"

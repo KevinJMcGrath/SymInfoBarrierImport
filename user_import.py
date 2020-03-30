@@ -12,7 +12,7 @@ def onboard_users(user_dict: dict, bot_client: BotClient):
     for group_name, user_list in user_dict.items():
         print(f'Inserting Symphony data for group {group_name}...')
         # create IB group
-        # ib_group_id = ib_gen.create_ib_group(group_name, bot_client)
+        ib_group_id = ib_gen.create_ib_group(group_name, bot_client)
         ib_group_id = "1"
 
         # Onboard users
@@ -33,7 +33,7 @@ def insert_users(user_list: List[NewUserData], bot_client: BotClient):
     for user in user_list:
         # Insert new user into Symphony
         sym_user = bot_client.User.create_service_user(user.first_name, user.last_name, user.email,
-                                                       user.username, user.domain, user.rsa_public_key)
+                                                       user.username, user.company_name, user.rsa_public_key)
 
         user_id = sym_user['userSystemInfo']['id']
         parent_id = None
@@ -47,7 +47,7 @@ def insert_users(user_list: List[NewUserData], bot_client: BotClient):
         sym_user_id_list.append(user_id)
 
         # Insert new user into database
-        user_db.insert_user_session(user_id, None, None, user.keypair_record_id, parent_id, user.username)
+        user_db.insert_user_session(user_id, None, None, user.keypair_record_id, user.username, parent_id)
         # Reserve rsa keypair
         rsa_db.reserve_key_pair(user.keypair_record_id)
 

@@ -84,7 +84,8 @@ def main_menu():
         [98] Delete all RSA key pairs
         [99] Delete all user data
         [q] Quit        
-    '''
+    
+    >>> '''
 
     return input(prompt)
 

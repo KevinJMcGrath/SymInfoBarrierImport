@@ -35,7 +35,7 @@ class RSACache(DBConn):
         return row["private"], row["public"]
 
     def is_reserved(self, key_pair_id: str):
-        result = self.execute_query(self._get_is_reserved, key_pair_id)["is_reserved"]
+        result = self.execute_query(self._get_is_reserved, key_pair_id)[0]["is_reserved"]
         return bool(int(result))
 
     def insert_key_pair(self, private_key: str, public_key: str):
