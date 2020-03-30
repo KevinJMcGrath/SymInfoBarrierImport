@@ -1,19 +1,17 @@
-import sqlite3
-
 from database.db import DBConn
 from models.user import DBUserSession
 
 
 class UserCache(DBConn):
     _create_sql = "CREATE TABLE IF NOT EXISTS user_cache"
-    _create_sql += " (user_id TEXT PRIMARY KEY, session_token TEXT, km_token TEXT, parent_id TEXT)"
+    _create_sql += " (user_id TEXT PRIMARY KEY, session_token TEXT, km_token TEXT, rsa_id TEXT, parent_id TEXT, bot_username TEXT)"
 
     _create_index = "CREATE INDEX IF NOT EXISTS key_index ON user_cache (user_id)"
     _get_all_sql = "SELECT * FROM user_cache"
     _get_user_sql = "SELECT * FROM user_cache WHERE user_id = ?"
     _get_users_sql = "SELECT * FROM user_cache WHERE parent_id = ?"
     _del_all_sql = "DELETE FROM user_cache"
-    _insert_sql = "INSERT INTO user_cache (user_id, session_token, km_token, rsa_id, parent_id) VALUES (?, ?, ?, ?, ?)"
+    _insert_sql = "INSERT INTO user_cache (user_id, session_token, km_token, rsa_id, parent_id, bot_username) VALUES (?, ?, ?, ?, ?, ?)"
     _update_sql = "REPLACE INTO user_cache (user_id, session_token, km_token, rsa_id, parent_id) VALUES (?, ?, ?, ?, ?)"
 
     def __init__(self):
@@ -33,17 +31,16 @@ class UserCache(DBConn):
         rows = self.execute_query(self._get_users_sql, parent_id)
         return [DBUserSession(row) for row in rows]
 
-    def insert_user_session(self, sym_id, session_token, km_token, rsa_id, parent_id=None):
-        self.execute_query(self._insert_sql, sym_id, session_token, km_token, rsa_id, parent_id)
+    def get_all_users(self):
+        for row in self.execute_query(self._get_all_sql):
+            yield DBUserSession(row)
 
-    def update_user_session(self, sym_user_id, session_token, km_token, rsa_id, parent_id):
-        self.execute_query(self._update_sql, sym_user_id, session_token, km_token, rsa_id, parent_id)
+    def insert_user_session(self, sym_id, session_token, km_token, rsa_id, bot_username, parent_id=None):
+        self.execute_query(self._insert_sql, sym_id, session_token, km_token, rsa_id, parent_id, bot_username)
 
-    def upsert_user_session(self, sym_user_id, session_token, km_token, rsa_id, parent_id):
-        try:
-            self.insert_user_session(sym_user_id, session_token, km_token, rsa_id, parent_id)
-        except sqlite3.IntegrityError:
-            self.update_user_session(sym_user_id, session_token, km_token, rsa_id, parent_id)
+    def update_user_session(self, sym_user_id, session_token, km_token):
+        sql = f"UPDATE user_cache SET session_token = {session_token}, km_token = {km_token} WHERE id = {sym_user_id}"
+        self.execute_query(sql)
 
     def clear_all(self):
         self.execute_query(self._del_all_sql)

@@ -1,4 +1,5 @@
 import jsonpickle
+import requests
 
 from .session import Session
 
@@ -22,15 +23,27 @@ class APIBase:
         self.session.authenticate()
 
         response = None
+        status_code = None
+        message = None
 
-        if method.lower() == 'get':
-            response = self.session.http_session.get(endpoint, headers=self.session.get_rest_headers())
-        elif method.lower() == 'post':
-            body_str = jsonpickle.encode(body_object, unpicklable=False)
-            response = self.session.http_session.post(endpoint, data=body_str, headers=self.session.get_rest_headers())
-        # elif method.lower() == 'postv2':
+        try:
+            if method.lower() == 'get':
+                response = self.session.http_session.get(endpoint, headers=self.session.get_rest_headers())
+            elif method.lower() == 'post':
+                body_str = jsonpickle.encode(body_object, unpicklable=False)
+                response = self.session.http_session.post(endpoint, data=body_str, headers=self.session.get_rest_headers())
 
-        if response.status_code // 100 != 2:
-            response.raise_for_status()
+            status_code = response.status_code
+            if response.status_code // 100 != 2:
+                response.raise_for_status()
 
-        return jsonpickle.decode(response.text)
+            return jsonpickle.decode(response.text)
+        except requests.exceptions.HTTPError as http_ex:
+            print(f'HTTP Ex - code: {status_code} - msg: {http_ex.response.text}')
+            raise http_ex
+        except requests.exceptions.ConnectionError as conn_ex:
+            print(f'Conn Ex: {conn_ex}')
+            raise conn_ex
+        except Exception as ex:
+            print(f'Exception: {ex}')
+            raise ex

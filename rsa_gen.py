@@ -42,7 +42,7 @@ def generate_rsa_keypair_sets(num_pairs: int):
         print(f'{i + 1}...', end='')
         keypair_id = generate_rsa_keypair()
         id_list.append(keypair_id)
-        print(keypair_id)
+        print('done!')
 
     print('Done!')
 

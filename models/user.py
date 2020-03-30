@@ -8,6 +8,7 @@ class NewUserData:
         self.parent_username = ''
         self.keypair_record_id = ''
         self.rsa_public_key = ''
+        self.company_name = ''
 
 
 class DBUserSession:
@@ -17,3 +18,4 @@ class DBUserSession:
         self.km_token = sqlite_row['km_token']
         self.rsa_id = sqlite_row['rsa_id']
         self.parent_id = sqlite_row['parent_id']
+        self.username = sqlite_row['bot_username']

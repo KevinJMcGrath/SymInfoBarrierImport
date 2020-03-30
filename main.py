@@ -4,20 +4,13 @@ import config
 import ib_gen
 import rsa_gen
 import user_gen
+import user_auth
 import user_import
 
 from symphony import BotClient
 
 bot = BotClient(config.bot_config)
 bot.session.authenticate()
-
-# result = bot.InfoBarriers.list_ib_groups()
-
-
-
-# result = bot.User.list_user_groups()
-
-
 
 
 def run_menu():
@@ -34,6 +27,8 @@ def run_menu():
         elif choice == "2":
             # add parents, children, IB groups and policies
             create_insert_random_users()
+        elif choice == "3":
+            user_auth.authenticate_all_bot_users()
         elif choice == "98":
             # delete RSA keys
             if verify_input("Are you sure you want to delete all RSA key pairs in the database?"):
@@ -85,6 +80,7 @@ def main_menu():
     Select option: 
         [1] Generate RSA key pairs
         [2] Insert users into Symphony
+        [3] Authenticate users
         [98] Delete all RSA key pairs
         [99] Delete all user data
         [q] Quit        

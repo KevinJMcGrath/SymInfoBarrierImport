@@ -11,7 +11,7 @@ def generate_user_data():
         return []
 
     users_per_company = users_per_company_menu()
-    if users_per_company_menu() < 1:
+    if users_per_company < 1:
         return []
 
     # get a list of unreserved keypair ids from database

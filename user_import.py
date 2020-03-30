@@ -4,13 +4,16 @@ import ib_gen
 
 from database import user_db, rsa_db
 from symphony import BotClient
+from utility import timeit
 from models.user import NewUserData
 
 
 def onboard_users(user_dict: dict, bot_client: BotClient):
     for group_name, user_list in user_dict.items():
+        print(f'Inserting Symphony data for group {group_name}...')
         # create IB group
-        ib_group_id = ib_gen.create_ib_group(group_name, bot_client)
+        # ib_group_id = ib_gen.create_ib_group(group_name, bot_client)
+        ib_group_id = "1"
 
         # Onboard users
         user_ids = insert_users(user_list, bot_client)
@@ -22,6 +25,7 @@ def onboard_users(user_dict: dict, bot_client: BotClient):
         ib_gen.create_all_policy_combinations(ib_group_id, bot_client)
 
 
+# @timeit
 def insert_users(user_list: List[NewUserData], bot_client: BotClient):
     p_id = None
 
@@ -29,13 +33,13 @@ def insert_users(user_list: List[NewUserData], bot_client: BotClient):
     for user in user_list:
         # Insert new user into Symphony
         sym_user = bot_client.User.create_service_user(user.first_name, user.last_name, user.email,
-                                                       user.username, user.rsa_public_key)
+                                                       user.username, user.domain, user.rsa_public_key)
 
         user_id = sym_user['userSystemInfo']['id']
         parent_id = None
 
         # establish parent_id
-        if not p_id :
+        if not p_id:
             p_id = user_id
         else:
             parent_id = p_id
@@ -43,7 +47,7 @@ def insert_users(user_list: List[NewUserData], bot_client: BotClient):
         sym_user_id_list.append(user_id)
 
         # Insert new user into database
-        user_db.insert_user_session(user_id, None, None, user.keypair_record_id, parent_id)
+        user_db.insert_user_session(user_id, None, None, user.keypair_record_id, parent_id, user.username)
         # Reserve rsa keypair
         rsa_db.reserve_key_pair(user.keypair_record_id)
 

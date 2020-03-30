@@ -7,8 +7,15 @@ from pathlib import Path
 
 from symphony.rest import endpoints
 
+def generate_jwt_from_keyfile(bot_username: str, private_key_path: str, use_legacy_crypto: bool = False):
 
-def generate_jwt(bot_username: str, private_key_path: str, use_legacy_crypto: bool = False):
+    with open(Path(private_key_path), 'r') as keyfile:
+        private_key = keyfile.read()
+
+    return generate_jwt(bot_username, private_key, use_legacy_crypto)
+
+
+def generate_jwt(bot_username: str, private_key: str, use_legacy_crypto: bool = False):
     # GAE does not allow installation of the cryptography module
     # Thus, I need to provide a way to fall back to the legacy modules
     # required by pyJWT
@@ -28,10 +35,7 @@ def generate_jwt(bot_username: str, private_key_path: str, use_legacy_crypto: bo
         "exp": datetime.utcnow() + timedelta(minutes=5)
     }
 
-    with open(Path(private_key_path), 'r') as keyfile:
-        private_key = keyfile.read()
-
-        return jwt.encode(payload, private_key, algorithm='RS512', headers=header)
+    return jwt.encode(payload, private_key, algorithm='RS512', headers=header)
 
 
 def get_auth_token(endpoint, jwt_token):
@@ -45,10 +49,18 @@ def get_auth_token(endpoint, jwt_token):
     response.raise_for_status()
 
 
-def authenticate_bot(base_url: str, bot_username: str, private_key_path: str, use_legacy_crypto: bool = False):
+def authenticate_bot_by_keyfile(base_url: str, bot_username: str, private_key_path: str,
+                                use_legacy_crypto: bool = False):
+    jwt_token = generate_jwt_from_keyfile(bot_username, private_key_path, use_legacy_crypto)
+    return authenticate_bot(base_url, jwt_token)
 
-    jwt_token = generate_jwt(bot_username, private_key_path, use_legacy_crypto)
 
+def authenticate_bot_by_keystring(base_url: str, bot_username: str, private_key: str):
+    jwt_token = generate_jwt(bot_username, private_key)
+    return authenticate_bot(base_url, jwt_token)
+
+
+def authenticate_bot(base_url: str, jwt_token):
     jwt_payload = {
         "token": jwt_token.decode('utf-8')
     }

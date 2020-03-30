@@ -1,3 +1,4 @@
+from utility import timeit
 from symphony.bot_client import BotClient
 
 ib_policies = set()
@@ -34,20 +35,21 @@ def is_existing_policy(ib_group_1_id: str, ib_group_2_id: str):
 
     return key1 in ib_policies or key2 in ib_policies
 
-
+@timeit
 def create_ib_group(group_name: str, bot_client: BotClient):
-    return bot_client.InfoBarriers.create_ib_user_group(group_name)['id']
+    return bot_client.InfoBarriers.create_ib_user_group(group_name)['data']['id']
 
 
 # This call could be time consuming
+@timeit
 def add_users_to_ib_group(group_id: str, user_ids: list, bot_client: BotClient):
     bot_client.InfoBarriers.add_users_to_ib_group(group_id, user_ids)
 
-
+@timeit
 def create_ib_group_policy(group_1_id: str, group_2_id: str, bot_client: BotClient):
     return bot_client.InfoBarriers.create_ib_policy(group_1_id, group_2_id)['data']['id']
 
-
+@timeit
 def create_all_policy_combinations(new_group_id: str, bot_client: BotClient):
     for group_id in ib_groups:
         if not is_existing_policy(group_id, new_group_id):

@@ -19,9 +19,14 @@ class InfoBarriers(APIBase):
 
     def create_ib_user_group(self, group_name: str):
         ep = self.get_endpoint(sym_ep.create_ib_group())
-        payload = {"name": group_name}
+        payload = {
+            "data": {
+                "name": group_name
+            }
+        }
 
-        return self.post(ep, payload)
+        response = self.post(ep, payload)
+        return response
 
     def create_ib_policy(self, group_1_id: str, group_2_id: str):
         ep = self.get_endpoint(sym_ep.create_ib_policy())

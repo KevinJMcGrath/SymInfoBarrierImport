@@ -1,5 +1,6 @@
 import symphony.rest.endpoints as sym_ep
 
+from utility import timeit
 from symphony.api_base import APIBase
 
 
@@ -12,16 +13,20 @@ class User(APIBase):
 
         return self.get(ep)
 
-    def create_service_user(self, first_name: str, last_name: str, email: str, username: str, public_key: str):
+    @timeit
+    def create_service_user(self, first_name: str, last_name: str, email: str, username: str, company_name: str,
+                            public_key: str):
         user = {
             "userAttributes": {
                 "accountType": "SYSTEM",
                 "emailAddress": email,
-                "firstName": first_name,
-                "lastName": last_name,
+                "firstName": first_name[:64],
+                "lastName": last_name[:64],
+                "displayName": f"{first_name[:64]} {last_name[:64]}",
                 "userName": username,
                 "currentKey": {"key": public_key}
-            }
+            },
+            "roles": ["INDIVIDUAL"]
         }
 
         # for key, value in kwargs.items():
@@ -30,3 +35,12 @@ class User(APIBase):
         ep = self.get_endpoint(sym_ep.create_user())
 
         return self.post(ep, user)
+
+    # required fields for user insert:
+    # emailAddress
+    # firstName
+    # lastName
+    # userName
+    # displayName
+    # companyName
+    # roles

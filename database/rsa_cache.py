@@ -30,7 +30,8 @@ class RSACache(DBConn):
         return [row["id"] for row in rows]
 
     def get_key_pair(self, keypair_id: str):
-        row = self.execute_query(self._get_by_id_sql, keypair_id)[0]
+        sql = f"SELECT private, public FROM rsa_cache WHERE id = {keypair_id}"
+        row = self.execute_prebuilt_query(sql)[0]
         return row["private"], row["public"]
 
     def is_reserved(self, key_pair_id: str):

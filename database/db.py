@@ -22,19 +22,29 @@ class DBConn:
 
         return database_connection
 
+    def get_connection(self):
+        db_conn = sqlite3.Connection(self.database_path, timeout=60)
+        db_conn.row_factory = sqlite3.Row
+
+        return db_conn
+
     def init_table(self, create_sql: str, create_index_sql: str):
         with self.conn as cn:
             cn.execute(create_sql)
             cn.execute(create_index_sql)
 
+    def execute_prebuilt_query(self, query):
+        with self.get_connection() as conn:
+            return conn.execute(query).fetchall()
+
     def execute_query(self, query: str, *values):
-        with self.conn as cn:
-            return cn.execute(query, tuple(values))
+        with self.get_connection() as conn:
+            return conn.execute(query, values).fetchall()
 
     def execute_and_return_id(self, query: str, *values):
         with self.conn as cn:
             cur = cn.cursor()
-            cur.execute(query, tuple(values))
+            cur.execute(query, values)
 
             return cur.lastrowid
 

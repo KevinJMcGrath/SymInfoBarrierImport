@@ -26,11 +26,11 @@ def session_auth_obo_user(user_id: str):
 
 
 def echo():
-    return '/agent/v1/util/echo'
+    return 'agent/v1/util/echo'
 
 
 def create_im(exclude_bot: bool = False):
-    im_ep = '/pod/v1/'
+    im_ep = 'pod/v1/'
     im_ep += 'admin/' if exclude_bot else ''
     im_ep += 'im/create'
 
@@ -39,16 +39,16 @@ def create_im(exclude_bot: bool = False):
 
 def send_message(stream_id: str, version: int=2):
     s_id = util.format_symphony_stream_id(stream_id)
-    return f'/agent/v{str(version)}/stream/{s_id}/message/create'
+    return f'agent/v{str(version)}/stream/{s_id}/message/create'
 
 
 def create_user():
-    return f'/pod/v2/admin/user/create'
+    return f'pod/v2/admin/user/create'
 
 
 def lookup_user_list(user_emails: list, local_users_only: bool):
     qs = ','.join(user_emails)
-    return f'/pod/v3/users?local={str(local_users_only).lower()}&email={qs}'
+    return f'pod/v3/users?local={str(local_users_only).lower()}&email={qs}'
 
 
 def lookup_user(user_email: str, local_users_only: bool):
