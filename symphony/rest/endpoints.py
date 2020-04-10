@@ -107,7 +107,7 @@ def list_users(limit: int = 1000, skip_count: int = 0):
 
 
 def list_ib_groups():
-    return f'pod/v1/admin/group/list'
+    return f'webcontroller/admin/v2/groups/'
 
 
 def list_ib_policies():

@@ -13,7 +13,6 @@ def onboard_users(user_dict: dict, bot_client: BotClient):
         print(f'Inserting Symphony data for group {group_name}...')
         # create IB group
         ib_group_id = ib_gen.create_ib_group(group_name, bot_client)
-        ib_group_id = "1"
 
         # Onboard users
         user_ids = insert_users(user_list, bot_client)

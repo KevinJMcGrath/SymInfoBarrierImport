@@ -39,14 +39,20 @@ def generate_jwt(bot_username: str, private_key: str, use_legacy_crypto: bool = 
 
 
 def get_auth_token(endpoint, jwt_token):
-    # This needs to be a string, or requests will use the wrong content type
-    response = requests.post(endpoint, data=jsonpickle.encode(jwt_token, unpicklable=False))
+    try:
+        # This needs to be a string, or requests will use the wrong content type
+        response = requests.post(endpoint, data=jsonpickle.encode(jwt_token, unpicklable=False))
 
-    if response.status_code == 200:
-        resp_json = response.json()
-        return resp_json['token']
+        if response.status_code == 200:
+            resp_json = response.json()
+            return resp_json['token']
 
-    response.raise_for_status()
+        response.raise_for_status()
+    except requests.HTTPError as h_ex:
+        print(f'HTTP Error: {h_ex}')
+        print(f'Response message: {h_ex.response.text}')
+    except Exception as ex:
+        print(f'Error: {ex}')
 
 
 def authenticate_bot_by_keyfile(base_url: str, bot_username: str, private_key_path: str,

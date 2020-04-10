@@ -4,7 +4,7 @@ from models.user import DBUserSession
 
 class UserCache(DBConn):
     _create_sql = "CREATE TABLE IF NOT EXISTS user_cache"
-    _create_sql += " (user_id TEXT PRIMARY KEY, session_token TEXT, km_token TEXT, rsa_id TEXT, parent_id TEXT, bot_username TEXT)"
+    _create_sql += " (user_id TEXT PRIMARY KEY, session_token TEXT, km_token TEXT, rsa_id TEXT, parent_id TEXT, bot_username TEXT, expires REAL)"
 
     _create_index = "CREATE INDEX IF NOT EXISTS key_index ON user_cache (user_id)"
     _get_all_sql = "SELECT * FROM user_cache"
@@ -36,12 +36,10 @@ class UserCache(DBConn):
             yield DBUserSession(row)
 
     def insert_user_session(self, sym_id, session_token, km_token, rsa_id, bot_username, parent_id=None):
-        sql = "INSERT INTO user_cache (user_id, session_token, km_token, rsa_id, parent_id, bot_username) VALUES"
-        sql += f"({sym_id}, {session_token}, {km_token}, {rsa_id}, {parent_id}, {bot_username})"
-        self.execute_query(sql)
+        self.execute_query(self._insert_sql, sym_id, session_token, km_token, rsa_id, parent_id, bot_username)
 
-    def update_user_session(self, sym_user_id, session_token, km_token):
-        sql = f"UPDATE user_cache SET session_token = {session_token}, km_token = {km_token} WHERE id = {sym_user_id}"
+    def update_user_session(self, sym_user_id, session_token, km_token, expires):
+        sql = f'UPDATE user_cache SET session_token = "{session_token}", km_token = "{km_token}", expires = "{expires}" WHERE user_id = "{sym_user_id}"'
         self.execute_query(sql)
 
     def clear_all(self):

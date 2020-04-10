@@ -19,3 +19,4 @@ class DBUserSession:
         self.rsa_id = sqlite_row['rsa_id']
         self.parent_id = sqlite_row['parent_id']
         self.username = sqlite_row['bot_username']
+        self.expires = sqlite_row['expires']

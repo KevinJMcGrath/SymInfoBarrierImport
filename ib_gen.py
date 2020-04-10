@@ -21,7 +21,10 @@ def populate_existing_ib_groups(bot_client: BotClient, filter_prefix: str = None
     print('Obtaining current IB group list from POD...', end='')
     group_resp = bot_client.InfoBarriers.list_ib_groups()
 
-    for g in group_resp:
+    for g in group_resp['data']:
+        if not g['active']:
+            continue
+
         if filter_prefix:
             if g['name'].startswith(filter_prefix):
                 ib_groups[g['id']] = g['name']
@@ -51,8 +54,15 @@ def create_ib_group_policy(group_1_id: str, group_2_id: str, bot_client: BotClie
 
 @timeit
 def create_all_policy_combinations(new_group_id: str, bot_client: BotClient):
+    policy_count = 0
     for group_id in ib_groups:
-        if not is_existing_policy(group_id, new_group_id):
-            bot_client.InfoBarriers.create_ib_policy(new_group_id, group_id)
-            key = f'{new_group_id}_{group_id}'
-            ib_policies.add(key)
+        if new_group_id != group_id and not is_existing_policy(group_id, new_group_id):
+            try:
+                bot_client.InfoBarriers.create_ib_policy(new_group_id, group_id)
+                key = f'{new_group_id}_{group_id}'
+                ib_policies.add(key)
+                policy_count += 1
+            except Exception:
+                continue
+
+    print(f'Created {policy_count} new Info Barrier policies.')
